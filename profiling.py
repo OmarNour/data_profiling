@@ -1,4 +1,4 @@
-
+import datetime as dt
 import multiprocessing
 import pandas as pd
 from app_Lib.functions import gen_mock_data, df_profile, get_engine, get_all_data_from_source, open_result, get_result_path
@@ -30,15 +30,20 @@ class DataProfiling:
         self.csv_delimiter = csv_delimiter
         self.save_result_to = save_result_to
         self.data_set_name = data_set_name
-
+        self.error_message = ""
     def data_profile(self):
-        source_engine = self.source_engine
-        df = get_all_data_from_source(source_engine,
-                                      self.url, self.schema, self.query, self.host, self.user, self.pw,
-                                      self.read_file, self.sheet_name, self.csv_delimiter)
-        result_path = get_result_path(self.save_result_to, self.data_set_name)
-        df_profile(df, result_path, self.data_set_name)
-        open_result(result_path)
+        try:
+            self.start_time = dt.datetime.now()
+            source_engine = self.source_engine
+            df = get_all_data_from_source(source_engine,
+                                          self.url, self.schema, self.query, self.host, self.user, self.pw,
+                                          self.read_file, self.sheet_name, self.csv_delimiter)
+            result_path = get_result_path(self.save_result_to, self.data_set_name)
+            df_profile(df, result_path, self.data_set_name)
+            self.elapsed_time = dt.datetime.now() - self.start_time
+            open_result(result_path)
+        except:
+            self.error_message = "Error!, check the logs please."
 
 
 if __name__ == '__main__':
@@ -72,4 +77,3 @@ if __name__ == '__main__':
     ###################### inputs ######################
     DP = DataProfiling(source_engine, url, schema, query,host, user, pw, read_file, sheet_name, csv_delimiter, save_result_to, data_set_name)
     DP.data_profile()
-    

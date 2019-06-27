@@ -10,6 +10,7 @@ import traceback
 import time
 import threading
 import random
+import profiling as prof
 
 
 class FrontEnd:
@@ -97,7 +98,7 @@ class FrontEnd:
 
         self.populate_config_file_values()
 
-        thread0 = GenerateScriptsThread(0, "Thread-0", self)
+        thread0 = DataProfilingThread(0, "Thread-0", self)
         thread0.start()
 
         self.root.mainloop()
@@ -138,12 +139,12 @@ class FrontEnd:
             x = open(config_file_path)
             try:
                 self.enable_disable_fields(DISABLED)
-                self.g.generate_scripts()
+                self.dp.data_profile()
                 self.enable_disable_fields(NORMAL)
-                print("Total Elapsed time: ", self.g.elapsed_time, "\n")
+                print("Total Elapsed time: ", self.dp.elapsed_time, "\n")
             except Exception as error:
                 try:
-                    error_messager = self.g.error_message
+                    error_messager = self.dp.error_message
                 except:
                     error_messager = error
                 self.change_status_label(error_messager, self.color_error_messager)
@@ -163,13 +164,12 @@ class FrontEnd:
 
     def start(self):
 
-        self.refresh_config_file_values()
-        self.g = gs.GenerateScripts(None, self.config_file_values)
+        self.dp = prof.DataProfiling()
 
-        thread1 = GenerateScriptsThread(1, "Thread-1", self)
+        thread1 = DataProfilingThread(1, "Thread-1", self)
         thread1.start()
 
-        thread2 = GenerateScriptsThread(2, "Thread-2", self, thread1)
+        thread2 = DataProfilingThread(2, "Thread-2", self, thread1)
         thread2.start()
 
     def generating_indicator(self, thread):
@@ -177,15 +177,15 @@ class FrontEnd:
             return random.randint(0, 255)
 
         while thread.is_alive():
-            elapsed_time = dt.datetime.now() - self.g.start_time
+            elapsed_time = dt.datetime.now() - self.dp.start_time
             msg = self.msg_generating + str(elapsed_time)
             # color_list = ["white", "black", "red", "green", "blue", "cyan", "yellow", "magenta"]
             # color = random.choice(color_list)
             color = '#%02X%02X%02X' % (r(),r(),r())
             self.change_status_label(msg, color)
 
-        message = self.g.error_message if self.g.error_message != "" else self.msg_done + str(self.g.elapsed_time)
-        color = self.color_msg_done_with_error if self.g.error_message != "" else self.color_msg_done
+        message = self.dp.error_message if self.dp.error_message != "" else self.msg_done + str(self.dp.elapsed_time)
+        color = self.color_msg_done_with_error if self.dp.error_message != "" else self.color_msg_done
         self.change_status_label(message, color)
 
     def display_server_info(self, thread):
@@ -196,7 +196,7 @@ class FrontEnd:
             self.change_server_info_label(msg, color)
 
 
-class GenerateScriptsThread(threading.Thread):
+class DataProfilingThread(threading.Thread):
     def __init__(self,threadID ,name, front_end_c, thread=None):
         threading.Thread.__init__(self)
         self.threadID = threadID
