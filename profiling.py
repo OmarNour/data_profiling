@@ -1,5 +1,4 @@
 import datetime as dt
-import multiprocessing
 import pandas as pd
 from app_Lib.functions import gen_mock_data, df_profile, get_engine, get_all_data_from_source, open_result, get_result_path
 
@@ -50,40 +49,40 @@ class DataProfiling:
         except:
             self.error_message = "Error!, check the logs please."
 
-
-if __name__ == '__main__':
-    multiprocessing.freeze_support()
-
-    ###################### inputs ######################
-    source_engine = "teradata"  # "postgres", "csv", "excel", "json"
-    source_engine = "postgres"
-
-    data_set_name = "PG_mock_data"
-    save_result_to = "C:/data_profiling"
-
-    host, port, database, user, pw = "172.19.3.22", "22", "", "edw_prod_u", "edw_prod_u"
-    host, port, database, user, pw = "localhost", "5432", "data_profiling_db", "postgres", "postgres"
-
-    url = None #"postgresql://postgres:postgres@localhost:5432/data_profiling_db"
-
-    pg_url = "postgresql://{username}:{password}@{hostname}:{port}/{database}"
-    TD_url = "teradata://{username}:{password}@{hostname}:{port}/?driver={driverName}"
-    schema = ""
-
-    query = """ select * from stg_layer.CSO_NEW_PERSON sample 10 """
-
-    query = """
-            SELECT address, created_date, first_name, last_name, notes, person_id, phone_number 
-                    ,some_val_1, some_val_2, some_val_3, some_val_4, some_val_5
-                    ,mod(person_id + cast(COALESCE(some_val_4,0) as int), 3)  level_
-                    ,case when length(first_name) <= 10 then 'A' else 'B' end name_len_category
-            FROM public.mock_data limit 50000;
-            """
-
-    read_file = "C:/smx_sheets/Production_Citizen_SMX.xlsx"
-    sheet_name = "STG tables"
-    csv_delimiter = ","
-
-    ###################### inputs ######################
-    DP = DataProfiling(source_engine, url, schema, query, host, port, database, user, pw, read_file, sheet_name, csv_delimiter, save_result_to, data_set_name)
-    DP.data_profile()
+#
+# if __name__ == '__main__':
+#     multiprocessing.freeze_support()
+#
+#     ###################### inputs ######################
+#     source_engine = "teradata"  # "postgres", "csv", "excel", "json"
+#     source_engine = "postgres"
+#
+#     data_set_name = "PG_mock_data"
+#     save_result_to = "C:/data_profiling"
+#
+#     host, port, database, user, pw = "172.19.3.22", "22", "", "edw_prod_u", "edw_prod_u"
+#     host, port, database, user, pw = "localhost", "5432", "data_profiling_db", "postgres", "postgres"
+#
+#     url = None #"postgresql://postgres:postgres@localhost:5432/data_profiling_db"
+#
+#     pg_url = "postgresql://{username}:{password}@{hostname}:{port}/{database}"
+#     TD_url = "teradata://{username}:{password}@{hostname}:{port}/?driver={driverName}"
+#     schema = ""
+#
+#     query = """ select * from stg_layer.CSO_NEW_PERSON sample 10 """
+#
+#     query = """
+#             SELECT address, created_date, first_name, last_name, notes, person_id, phone_number
+#                     ,some_val_1, some_val_2, some_val_3, some_val_4, some_val_5
+#                     ,mod(person_id + cast(COALESCE(some_val_4,0) as int), 3)  level_
+#                     ,case when length(first_name) <= 10 then 'A' else 'B' end name_len_category
+#             FROM public.mock_data limit 50000;
+#             """
+#
+#     read_file = "C:/smx_sheets/Production_Citizen_SMX.xlsx"
+#     sheet_name = "STG tables"
+#     csv_delimiter = ","
+#
+#     ###################### inputs ######################
+#     DP = DataProfiling(source_engine, url, schema, query, host, port, database, user, pw, read_file, sheet_name, csv_delimiter, save_result_to, data_set_name)
+#     DP.data_profile()

@@ -95,8 +95,8 @@ class FrontEnd:
         self.server_info_label.grid(column=1, row=0, sticky=E)
         ##############################  end Footer  ####################################
 
-        thread0 = DataProfilingThread(0, "Thread-0", self)
-        thread0.start()
+        self.thread0 = DataProfilingThread(0, "Thread-0", self)
+        self.thread0.start()
 
         self.root.mainloop()
 
@@ -110,7 +110,6 @@ class FrontEnd:
             self.server_info_label.config(fg=color, text=self.server_info_label_text.get())
         except RuntimeError:
             pass
-
 
     def pb(self, tasks, task_len):
         self.progress_var = IntVar()
@@ -150,6 +149,7 @@ class FrontEnd:
         self.root.destroy()
         sys.exit()
 
+
     def close(self):
         # self.destroyer()
         self.root.protocol("WM_DELETE_WINDOW", self.destroyer())
@@ -172,8 +172,6 @@ class FrontEnd:
         while thread.is_alive():
             elapsed_time = dt.datetime.now() - self.dp.start_time
             msg = self.msg_profiling + str(elapsed_time)
-            # color_list = ["white", "black", "red", "green", "blue", "cyan", "yellow", "magenta"]
-            # color = random.choice(color_list)
             color = '#%02X%02X%02X' % (r(),r(),r())
             self.change_status_label(msg, color)
 
@@ -196,6 +194,7 @@ class DataProfilingThread(threading.Thread):
         self.name = name
         self.FrontEndC = front_end_c
         self.thread = thread
+        self.daemon = True
 
     def run(self):
         if self.threadID == 1:
