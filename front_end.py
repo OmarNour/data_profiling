@@ -13,90 +13,87 @@ import random
 import profiling as prof
 
 
+class TxtField:
+    def __init__(self, frame, frame_width, label_txt, label_row, label_column, label_sticky, entry_row, entry_column, entry_sticky):
+        label = Label(frame, text=label_txt)
+        label.grid(row=label_row, column=label_column, sticky=label_sticky)
+
+        self.entry_field = Entry(frame, textvariable=StringVar(), width=frame_width)
+        self.entry_field.grid(row=entry_row, column=entry_column, sticky=entry_sticky)
+
+
 class FrontEnd:
     def __init__(self):
         self.root = Tk()
         img_icon = PhotoImage(file=os.path.join(md.get_dirs()[0], 'script_icon.png'))
         self.root.tk.call('wm', 'iconphoto', self.root._w, img_icon)
-        self.root.wm_title("SMX Scripts Builder " + pm.ver_no)
+        self.root.wm_title("Exploratory Data Analysis." + " | Build #1.1.1")
         self.root.resizable(width="false", height="false")
 
-        self.msg_no_config_file = "No Config File Found!"
-        self.color_msg_no_config_file = "red"
         self.msg_ready = "Ready"
         self.color_msg_ready = "green"
-        self.msg_generating = "In Progress... "
-        self.color_msg_generating = "blue"
+        self.msg_profiling = "In Progress... "
+        self.color_msg_profiling = "blue"
         self.msg_done = "Done, Elapsed Time: "
         self.color_msg_done = "green"
         self.color_msg_done_with_error = "red"
         self.color_error_messager = "red"
 
+        # "'source_engine', 'url', 'schema', 'query', 'host', 'port', 'database',
+        # 'user', 'pw', 'read_file', 'sheet_name', 'csv_delimiter', 'save_result_to', 'data_set_name'"
+
         frame_row1 = Frame(self.root, borderwidth="2", relief="ridge")
         frame_row1.grid(column=0, row=1, sticky=W)
 
-        frame_row2 = Frame(self.root, borderwidth="2", relief="ridge")
-        frame_row2.grid(column=0, row=2, sticky=W + E)
+        ##############################  start buttons frame  ####################################
+        frame_buttons = Frame(frame_row1, borderwidth="2", relief="ridge")
+        frame_buttons.grid(column=1, row=0)
+        self.profile_button = Button(frame_buttons, text="Profile", width=12, height=2, command=self.start_profiling)
+        self.profile_button.grid(row=2, column=0)
+        close_button = Button(frame_buttons, text="Exit", width=12, height=2, command=self.close)
+        close_button.grid(row=3, column=0)
+        ##############################  end buttons frame  ####################################
 
-        frame_row2.grid_columnconfigure(0, weight=1, uniform="group1")
-        frame_row2.grid_columnconfigure(1, weight=1, uniform="group1")
-        frame_row2.grid_rowconfigure(0, weight=1)
+        ##############################  start user inputs frame  ####################################
+        frame_db_inputs = Frame(frame_row1, borderwidth="2", relief="ridge")
+        frame_db_inputs.grid(column=0, row=0, sticky="w")
+        frame_db_inputs_width = 80# 84
 
-        frame_row2_l = Frame(frame_row2, borderwidth="2", relief="ridge")
-        frame_row2_l.grid(column=0, row=3, sticky=W + E)
+        self.entry_field_source_engine = TxtField(frame_db_inputs, frame_db_inputs_width, "Source Engine", 0, 0, 'e', 0, 1, "w").entry_field
+        self.entry_field_url = TxtField(frame_db_inputs, frame_db_inputs_width, "URL", 1, 0, 'e', 1, 1, "w").entry_field
+        self.entry_field_host = TxtField(frame_db_inputs, frame_db_inputs_width, "Host", 4, 0, 'e', 4, 1, "w").entry_field
+        self.entry_field_port = TxtField(frame_db_inputs, frame_db_inputs_width, "Port", 5, 0, 'e', 5, 1, "w").entry_field
+        self.entry_field_database = TxtField(frame_db_inputs, frame_db_inputs_width, "Database", 6, 0, 'e', 6, 1, "w").entry_field
+        self.entry_field_Schema = TxtField(frame_db_inputs, frame_db_inputs_width, "Schema", 7, 0, 'e', 7, 1, "w").entry_field
+        self.entry_field_user = TxtField(frame_db_inputs, frame_db_inputs_width, "User", 8, 0, 'e', 8, 1, "w").entry_field
+        self.entry_field_password = TxtField(frame_db_inputs, frame_db_inputs_width, "Password", 9, 0, 'e', 9, 1, "w").entry_field
+        self.entry_field_save_report_to = TxtField(frame_db_inputs, frame_db_inputs_width, "Save Report To", 10, 0, 'e', 10, 1, "w").entry_field
+        self.entry_field_dataset_name = TxtField(frame_db_inputs, frame_db_inputs_width, "Dataset Name", 11, 0, 'e', 11, 1, "w").entry_field
+        self.entry_field_Query = TxtField(frame_db_inputs, frame_db_inputs_width, "Query", 12, 0, 'e', 12, 1, "w").entry_field
+        ##############################  start user inputs frame  ####################################
 
-        frame_row2_r = Frame(frame_row2, borderwidth="2", relief="ridge")
-        frame_row2_r.grid(column=1, row=3, sticky=W + E)
+        ##############################  start Footer  ####################################
+        frame_footer_status_row2 = Frame(self.root, borderwidth="2", relief="ridge")
+        frame_footer_status_row2.grid(column=0, row=2, sticky=W + E)
+
+        frame_footer_status_row2.grid_columnconfigure(0, weight=1, uniform="group1")
+        frame_footer_status_row2.grid_columnconfigure(1, weight=1, uniform="group1")
+        frame_footer_status_row2.grid_rowconfigure(0, weight=1)
+
+        frame_footer_status_row2_l = Frame(frame_footer_status_row2, borderwidth="2", relief="ridge")
+        frame_footer_status_row2_l.grid(column=0, row=3, sticky=W + E)
+
+        frame_footer_status_row2_r = Frame(frame_footer_status_row2, borderwidth="2", relief="ridge")
+        frame_footer_status_row2_r.grid(column=1, row=3, sticky=W + E)
 
         self.status_label_text = StringVar()
-        self.status_label = Label(frame_row2_l)
+        self.status_label = Label(frame_footer_status_row2_l)
         self.status_label.grid(column=0, row=0, sticky=W)
 
         self.server_info_label_text = StringVar()
-        self.server_info_label = Label(frame_row2_r)
+        self.server_info_label = Label(frame_footer_status_row2_r)
         self.server_info_label.grid(column=1, row=0, sticky=E)
-
-        frame_buttons = Frame(frame_row1, borderwidth="2", relief="ridge")
-        frame_buttons.grid(column=1, row=0)
-        self.generate_button = Button(frame_buttons, text="Profile", width=12, height=2, command=self.start)
-        self.generate_button.grid(row=2, column=0)
-        close_button = Button(frame_buttons, text="Exit", width=12, height=2, command=self.close)
-        close_button.grid(row=3, column=0)
-
-        frame_database_inputs = Frame(frame_row1, borderwidth="2", relief="ridge")
-        frame_database_inputs.grid(column=0, row=0, sticky="w")
-
-        frame_config_file_values_entry_width = 84
-
-        read_from_smx_label = Label(frame_database_inputs, text="SMXs Folder")
-        read_from_smx_label.grid(row=0, column=0, sticky='e')
-
-        self.text_field_read_from_smx = StringVar()
-        self.entry_field_read_from_smx = Entry(frame_database_inputs, textvariable=self.text_field_read_from_smx, width=frame_config_file_values_entry_width)
-        self.entry_field_read_from_smx.grid(row=0, column=1, sticky="w")
-
-        output_path_label = Label(frame_database_inputs, text="Output Folder")
-        output_path_label.grid(row=1, column=0, sticky='e')
-
-        self.text_field_output_path = StringVar()
-        self.entry_field_output_path = Entry(frame_database_inputs, textvariable=self.text_field_output_path, width=frame_config_file_values_entry_width)
-        self.entry_field_output_path.grid(row=1, column=1, sticky="w")
-
-        source_names_label = Label(frame_database_inputs, text="Sources")
-        source_names_label.grid(row=2, column=0, sticky='e')
-
-        self.text_field_source_names = StringVar()
-        self.entry_field_source_names = Entry(frame_database_inputs, textvariable=self.text_field_source_names, width=frame_config_file_values_entry_width)
-        self.entry_field_source_names.grid(row=2, column=1, sticky="w", columnspan=1)
-
-        db_prefix_label = Label(frame_database_inputs, text="DB Prefix")
-        db_prefix_label.grid(row=3, column=0, sticky='e')
-
-        self.text_db_prefix = StringVar()
-        self.entry_db_prefix = Entry(frame_database_inputs, textvariable=self.text_db_prefix, width=frame_config_file_values_entry_width)
-        self.entry_db_prefix.grid(row=3, column=1, sticky="w", columnspan=1)
-
-        self.populate_config_file_values()
+        ##############################  end Footer  ####################################
 
         thread0 = DataProfilingThread(0, "Thread-0", self)
         thread0.start()
@@ -131,28 +128,22 @@ class FrontEnd:
             self.root.update_idletasks()
 
     def enable_disable_fields(self, f_state):
-        self.generate_button.config(state=f_state)
+        self.profile_button.config(state=f_state)
 
-    def generate_scripts_thread(self):
+    def data_profile_thread(self):
         try:
-            config_file_path = self.config_file_entry_txt.get()
-            x = open(config_file_path)
+            self.enable_disable_fields(DISABLED)
+            self.dp.data_profile()
+            self.enable_disable_fields(NORMAL)
+            print("Total Elapsed time: ", self.dp.elapsed_time, "\n")
+        except Exception as error:
             try:
-                self.enable_disable_fields(DISABLED)
-                self.dp.data_profile()
-                self.enable_disable_fields(NORMAL)
-                print("Total Elapsed time: ", self.dp.elapsed_time, "\n")
-            except Exception as error:
-                try:
-                    error_messager = self.dp.error_message
-                except:
-                    error_messager = error
-                self.change_status_label(error_messager, self.color_error_messager)
-                self.generate_button.config(state=NORMAL)
-                self.config_file_entry.config(state=NORMAL)
-                traceback.print_exc()
-        except:
-            self.change_status_label(self.msg_no_config_file, self.color_msg_no_config_file)
+                error_messager = self.dp.error_message
+            except:
+                error_messager = error
+            self.change_status_label(error_messager, self.color_error_messager)
+            self.profile_button.config(state=NORMAL)
+            traceback.print_exc()
 
     def destroyer(self):
         self.root.quit()
@@ -160,11 +151,13 @@ class FrontEnd:
         sys.exit()
 
     def close(self):
+        # self.destroyer()
         self.root.protocol("WM_DELETE_WINDOW", self.destroyer())
 
-    def start(self):
-
-        self.dp = prof.DataProfiling()
+    def start_profiling(self):
+        self.dp = prof.DataProfiling(self.entry_field_source_engine.get(), self.entry_field_url.get(), self.entry_field_Schema.get(),self.entry_field_Query.get(),
+                                     self.entry_field_host.get(), self.entry_field_port.get(), self.entry_field_database.get(), self.entry_field_user.get(),
+                                     self.entry_field_password.get(), self.entry_field_save_report_to.get(), self.entry_field_dataset_name.get())
 
         thread1 = DataProfilingThread(1, "Thread-1", self)
         thread1.start()
@@ -178,7 +171,7 @@ class FrontEnd:
 
         while thread.is_alive():
             elapsed_time = dt.datetime.now() - self.dp.start_time
-            msg = self.msg_generating + str(elapsed_time)
+            msg = self.msg_profiling + str(elapsed_time)
             # color_list = ["white", "black", "red", "green", "blue", "cyan", "yellow", "magenta"]
             # color = random.choice(color_list)
             color = '#%02X%02X%02X' % (r(),r(),r())
@@ -206,7 +199,7 @@ class DataProfilingThread(threading.Thread):
 
     def run(self):
         if self.threadID == 1:
-            self.FrontEndC.generate_scripts_thread()
+            self.FrontEndC.data_profile_thread()
         if self.threadID == 2:
             self.FrontEndC.generating_indicator(self.thread)
         if self.threadID == 0:

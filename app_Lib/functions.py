@@ -23,9 +23,11 @@ def get_result_path(result_path, data_set_name):
     result_path = result_path + "/" + data_set_name + ".html"
     return result_path
 
+
 def open_result(relative_result_path):
     full_path = os.path.abspath(relative_result_path)
     webbrowser.open(full_path)
+
 
 def get_engine(url, schema):
     if schema is None:
@@ -43,7 +45,7 @@ def source_connection(url, schema):
     return connection
 
 
-def get_all_data_from_source(source_engine, url, schema, query, host, user, pw, read_file, sheet_name, csv_delimiter):
+def get_all_data_from_source(source_engine, url, schema, query, host, port, db, user, pw, read_file, sheet_name, csv_delimiter):
     if source_engine == "CSV":
         results_df = pd.read_csv(read_file,delimiter=csv_delimiter)
     elif source_engine == "EXCEL":
@@ -51,6 +53,20 @@ def get_all_data_from_source(source_engine, url, schema, query, host, user, pw, 
     elif source_engine == "JSON":
         results_df = pd.read_json()
     elif source_engine != "TERADATA":
+        if url is None or url == "":
+            if source_engine == "ORACLE":
+                url = "oracle+cx_oracle://{username}:{password}@{hostname}:{port}/{database}".format(username=user,
+                                                                                                     password=pw,
+                                                                                                     hostname=host,
+                                                                                                     port=port,
+                                                                                                     database=db)
+            if source_engine == "POSTGRES":
+                url = "postgresql://{username}:{password}@{hostname}:{port}/{database}".format(username=user,
+                                                                                               password=pw,
+                                                                                               hostname=host,
+                                                                                               port=port,
+                                                                                               database=db)
+
         connection = source_connection(url, schema)
         results_proxy = connection.execute(query)
         all_results = results_proxy.fetchall()
